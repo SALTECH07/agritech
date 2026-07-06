@@ -5,7 +5,15 @@ node_modules/
 .deploy-tools/
 deploy-upload/
 .git/
+.agents/
+.codex/
+.lovable/
+.tanstack/
+.wrangler/
+backend/
+firmware/
+supabase/
 .env
 .env.*
 *.log
-backend/__pycache__/
+*.md

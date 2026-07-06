@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "preview:cloudflare": "vite build && npx wrangler dev --config .output/server/wrangler.json",
     "deploy:cloudflare": "vite build && npx wrangler deploy --config .output/server/wrangler.json",
-    "docker:up": "docker compose --env-file .env.docker up --build",
+    "docker:up": "docker compose --env-file .env.docker up --build -d",
+    "docker:start": "docker compose --env-file .env.docker up -d",
+    "docker:build": "docker compose --env-file .env.docker build",
+    "docker:logs": "docker compose --env-file .env.docker logs -f",
     "docker:down": "docker compose --env-file .env.docker down",
     "lint": "eslint .",
     "format": "prettier --write ."

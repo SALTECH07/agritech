@@ -38,7 +38,7 @@ For the full variable list and security notes, see `ENVIRONMENT_VARIABLES.md`.
 ## 2. Start all services
 
 ```bash
-docker compose --env-file .env.docker up --build
+docker compose --env-file .env.docker up --build -d
 ```
 
 Open:
@@ -47,6 +47,57 @@ Open:
 Website: http://localhost:5173
 Backend: http://localhost:8000/health
 PostgreSQL: localhost:5432
+```
+
+After the first successful build, use this faster command when you only want to
+start the existing containers:
+
+```bash
+docker compose --env-file .env.docker up -d
+```
+
+Rebuild only after changing `package.json`, `package-lock.json`,
+`Dockerfile.frontend`, backend requirements, or Docker files:
+
+```bash
+docker compose --env-file .env.docker build
+docker compose --env-file .env.docker up -d
+```
+
+## Frontend build speed and dependency warnings
+
+The first frontend build can take a while because Docker must download the full
+React, TanStack, Vite, chart, QR, and UI dependency tree inside a clean Linux
+image. A first `npm ci` around one or two minutes is normal on many machines.
+
+This project keeps an npm download cache inside Docker builds, so later rebuilds
+should be faster when `package.json` and `package-lock.json` have not changed.
+
+The current deprecation warnings are from frontend packages:
+
+- `recharts@2.15.4`: the v2 chart library branch is deprecated. The website can
+  still run, but moving to Recharts v3 should be handled as a separate tested
+  chart migration.
+- `tsconfck@3.1.6`: this is pulled through `vite-tsconfig-paths`, which is used
+  by the Lovable/TanStack Vite setup. This warning is not caused by the Flask
+  backend and does not expose secrets in the browser.
+
+For normal daily use, prefer:
+
+```bash
+npm run docker:start
+```
+
+Use a rebuild when you changed dependencies or Docker configuration:
+
+```bash
+npm run docker:up
+```
+
+Watch service logs when needed:
+
+```bash
+npm run docker:logs
 ```
 
 ## 3. Create a farmer account

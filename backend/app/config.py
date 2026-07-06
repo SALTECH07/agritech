@@ -1,5 +1,7 @@
 import os
 
+from sqlalchemy.engine import URL
+
 
 def _csv_env(name: str, default: str) -> list[str] | str:
     value = os.getenv(name, default).strip()
@@ -8,11 +10,25 @@ def _csv_env(name: str, default: str) -> list[str] | str:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _database_url() -> str:
+    explicit_url = os.getenv("DATABASE_URL")
+    if explicit_url:
+        return explicit_url.replace("postgres://", "postgresql://", 1)
+
+    return URL.create(
+        "postgresql+psycopg2",
+        username=os.getenv("POSTGRES_USER", "farmbuddy"),
+        password=os.getenv("POSTGRES_PASSWORD", "farmbuddy"),
+        host=os.getenv("POSTGRES_HOST", "postgres"),
+        port=int(os.getenv("POSTGRES_INTERNAL_PORT", "5432")),
+        database=os.getenv("POSTGRES_DB", "farmbuddy"),
+    ).render_as_string(
+        hide_password=False,
+    )
+
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "postgresql://farmbuddy:farmbuddy@postgres:5432/farmbuddy",
-    ).replace("postgres://", "postgresql://", 1)
+    SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET = os.getenv("JWT_SECRET", "change-this-dev-secret")
     JWT_EXPIRES_HOURS = int(os.getenv("JWT_EXPIRES_HOURS", "168"))

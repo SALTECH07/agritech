@@ -23,7 +23,10 @@ services:
     env_file:
       - .env.docker
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-farmbuddy}:${POSTGRES_PASSWORD:-farmbuddy_password}@postgres:5432/${POSTGRES_DB:-farmbuddy}
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-farmbuddy}
+      POSTGRES_USER: ${POSTGRES_USER:-farmbuddy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-farmbuddy_password}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       JWT_SECRET: ${JWT_SECRET:-change-this-docker-secret}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -36,7 +39,7 @@ services:
     ports:
       - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5).read()"]
       interval: 20s
       timeout: 5s
       retries: 5

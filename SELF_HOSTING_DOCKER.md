@@ -9,6 +9,10 @@ This setup runs the project with:
 The Flask backend is the self-hosted replacement for Supabase. Secrets stay in
 the backend container and PostgreSQL is private inside Docker.
 
+For public HTTPS deployment on `farming-guide.com`, install Nginx directly on
+the Linux host, use the reverse proxy files in `nginx/`, and follow
+`NGINX_SETUP.md`. Nginx is not part of Docker Compose in this setup.
+
 ## 1. Prepare environment
 
 Development:
@@ -48,6 +52,16 @@ Website: http://localhost:5173
 Backend: http://localhost:8000/health
 PostgreSQL: localhost:5432
 ```
+
+In production, Nginx should be the public entry point:
+
+```text
+Website: https://farming-guide.com
+Backend API: https://farming-guide.com/api
+```
+
+Docker services should stay bound to `127.0.0.1` so only host Nginx can reach
+the raw frontend, backend, and database ports.
 
 After the first successful build, use this faster command when you only want to
 start the existing containers:

@@ -7,6 +7,9 @@ assistant uses the server-side Gemini/OpenAI key from `.env`.
 For full self-hosting without Supabase, using Flask + PostgreSQL + Docker, see
 `SELF_HOSTING_DOCKER.md`.
 
+For a self-hosted public domain with Nginx and HTTPS on `farming-guide.com`, see
+`NGINX_SETUP.md`.
+
 ## 1. Install server packages
 
 ```bash

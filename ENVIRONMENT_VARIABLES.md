@@ -12,7 +12,7 @@ Do not commit `.env`, `.env.docker`, or any file containing real secrets.
 
 ```bash
 cp .env.development.example .env.docker
-docker compose --env-file .env.docker up --build
+docker compose --env-file .env.docker up --build -d
 ```
 
 Development URLs:
@@ -67,6 +67,7 @@ PostgreSQL:
 POSTGRES_DB
 POSTGRES_USER
 POSTGRES_PASSWORD
+POSTGRES_BIND_ADDRESS
 POSTGRES_PORT
 ```
 
@@ -74,6 +75,7 @@ Flask backend:
 
 ```text
 BACKEND_PORT
+BACKEND_BIND_ADDRESS
 JWT_SECRET
 JWT_EXPIRES_HOURS
 CORS_ORIGINS
@@ -83,6 +85,7 @@ React frontend:
 
 ```text
 FRONTEND_PORT
+FRONTEND_BIND_ADDRESS
 VITE_API_BASE_URL
 ```
 
@@ -101,9 +104,16 @@ OPENAI_MODEL
 For `https://farming-guide.com`:
 
 ```text
+POSTGRES_BIND_ADDRESS=127.0.0.1
+BACKEND_BIND_ADDRESS=127.0.0.1
+FRONTEND_BIND_ADDRESS=127.0.0.1
 CORS_ORIGINS=https://farming-guide.com,https://www.farming-guide.com
 VITE_API_BASE_URL=https://farming-guide.com
 ```
+
+Use `127.0.0.1` when Nginx is installed directly on the same Linux host. This
+keeps the raw Docker ports private and exposes only public HTTPS through host
+Nginx.
 
 If the API is hosted separately:
 

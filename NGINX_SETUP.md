@@ -159,5 +159,18 @@ VITE_API_BASE_URL=https://farming-guide.com
 CORS_ORIGINS=https://farming-guide.com,https://www.farming-guide.com
 ```
 
+If Vite shows `Blocked request. This host ("farming-guide.com") is not allowed`,
+confirm `vite.config.ts` includes:
+
+```ts
+vite: {
+  server: {
+    allowedHosts: ["farming-guide.com", "www.farming-guide.com"],
+  },
+}
+```
+
+Then rebuild or restart the frontend container.
+
 If Certbot cannot create the certificate, confirm the DNS record points to the
 server and port 80 is reachable from the internet.

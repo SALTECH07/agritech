@@ -1,0 +1,448 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Veta Kipawa Agri Tech — design system
+ * Kilimo: kijani cha mavuno, udongo, jua. Semantic tokens tu — usitumie color literals kwenye components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-soil: var(--soil);
+  --color-soil-foreground: var(--soil-foreground);
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 12px oklch(0 0 0 / 0.06);
+  --shadow-soft: 0 1px 3px oklch(0 0 0 / 0.06);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* surfaces */
+  --background: oklch(0.985 0.012 120);
+  --foreground: oklch(0.22 0.04 145);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.04 145);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.04 145);
+
+  /* kijani cha mavuno */
+  --primary: oklch(0.48 0.13 150);
+  --primary-foreground: oklch(0.985 0.012 120);
+
+  /* udongo (secondary) */
+  --secondary: oklch(0.93 0.03 80);
+  --secondary-foreground: oklch(0.32 0.06 70);
+
+  --muted: oklch(0.955 0.012 130);
+  --muted-foreground: oklch(0.48 0.03 145);
+
+  /* jua (accent) */
+  --accent: oklch(0.82 0.16 85);
+  --accent-foreground: oklch(0.25 0.05 70);
+
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.985 0.012 120);
+
+  --success: oklch(0.62 0.16 150);
+  --success-foreground: oklch(0.985 0.012 120);
+
+  --warning: oklch(0.78 0.16 75);
+  --warning-foreground: oklch(0.25 0.05 70);
+
+  --soil: oklch(0.55 0.09 55);
+  --soil-foreground: oklch(0.985 0.012 120);
+
+  --sky: oklch(0.78 0.07 220);
+  --sky-foreground: oklch(0.22 0.04 230);
+
+  --border: oklch(0.9 0.02 130);
+  --input: oklch(0.92 0.02 130);
+  --ring: oklch(0.48 0.13 150);
+
+  --sidebar: oklch(0.22 0.05 150);
+  --sidebar-foreground: oklch(0.96 0.02 120);
+  --sidebar-primary: oklch(0.82 0.16 85);
+  --sidebar-primary-foreground: oklch(0.22 0.05 150);
+  --sidebar-accent: oklch(0.28 0.05 150);
+  --sidebar-accent-foreground: oklch(0.96 0.02 120);
+  --sidebar-border: oklch(0.32 0.04 150);
+  --sidebar-ring: oklch(0.82 0.16 85);
+
+  --chart-1: oklch(0.55 0.15 150);
+  --chart-2: oklch(0.7 0.15 85);
+  --chart-3: oklch(0.55 0.09 55);
+  --chart-4: oklch(0.65 0.13 220);
+  --chart-5: oklch(0.6 0.18 30);
+}
+
+.dark {
+  --background: oklch(0.18 0.03 150);
+  --foreground: oklch(0.96 0.02 120);
+  --card: oklch(0.22 0.04 150);
+  --card-foreground: oklch(0.96 0.02 120);
+  --popover: oklch(0.22 0.04 150);
+  --popover-foreground: oklch(0.96 0.02 120);
+  --primary: oklch(0.75 0.15 150);
+  --primary-foreground: oklch(0.18 0.03 150);
+  --secondary: oklch(0.3 0.04 80);
+  --secondary-foreground: oklch(0.96 0.02 120);
+  --muted: oklch(0.26 0.03 150);
+  --muted-foreground: oklch(0.72 0.03 130);
+  --accent: oklch(0.78 0.15 85);
+  --accent-foreground: oklch(0.2 0.05 70);
+  --destructive: oklch(0.68 0.2 25);
+  --destructive-foreground: oklch(0.18 0.03 150);
+  --success: oklch(0.72 0.16 150);
+  --success-foreground: oklch(0.18 0.03 150);
+  --warning: oklch(0.82 0.16 75);
+  --warning-foreground: oklch(0.2 0.05 70);
+  --soil: oklch(0.6 0.09 55);
+  --soil-foreground: oklch(0.18 0.03 150);
+  --sky: oklch(0.7 0.08 220);
+  --sky-foreground: oklch(0.18 0.03 230);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.75 0.15 150);
+  --sidebar: oklch(0.16 0.03 150);
+  --sidebar-foreground: oklch(0.96 0.02 120);
+  --sidebar-primary: oklch(0.78 0.15 85);
+  --sidebar-primary-foreground: oklch(0.18 0.03 150);
+  --sidebar-accent: oklch(0.24 0.04 150);
+  --sidebar-accent-foreground: oklch(0.96 0.02 120);
+  --sidebar-border: oklch(0.3 0.04 150);
+  --sidebar-ring: oklch(0.78 0.15 85);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      sans-serif;
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: 0;
+  }
+}
+
+/* =============================================================
+ * Agriculture-themed animated background (used on landing).
+ * - Pure CSS; no JS, no extra deps.
+ * - Honors prefers-reduced-motion.
+ * ============================================================= */
+@keyframes vk-sun-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+@keyframes vk-cloud-drift {
+  0% {
+    transform: translateX(-15%);
+  }
+  100% {
+    transform: translateX(115%);
+  }
+}
+@keyframes vk-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes vk-grow {
+  0% {
+    transform: scaleY(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+@keyframes vk-rain {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(120vh);
+    opacity: 0;
+  }
+}
+@keyframes vk-hill-rise {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.vk-agri-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 110%, oklch(0.78 0.13 145 / 0.35), transparent 60%),
+    linear-gradient(
+      to bottom,
+      oklch(0.94 0.04 220) 0%,
+      oklch(0.96 0.03 200) 35%,
+      oklch(0.97 0.04 130) 70%,
+      oklch(0.93 0.08 130) 100%
+    );
+}
+.vk-agri-bg .vk-sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: 140px;
+  height: 140px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    oklch(0.92 0.16 85 / 0.9),
+    oklch(0.85 0.18 70 / 0.5) 55%,
+    transparent 75%
+  );
+  animation: vk-sun-pulse 6s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+.vk-agri-bg .vk-cloud {
+  position: absolute;
+  width: 180px;
+  height: 50px;
+  background: oklch(1 0 0 / 0.7);
+  border-radius: 9999px;
+  filter: blur(2px);
+  animation: vk-cloud-drift linear infinite;
+}
+.vk-agri-bg .vk-cloud::before,
+.vk-agri-bg .vk-cloud::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 9999px;
+}
+.vk-agri-bg .vk-cloud::before {
+  width: 80px;
+  height: 80px;
+  top: -30px;
+  left: 25px;
+}
+.vk-agri-bg .vk-cloud::after {
+  width: 60px;
+  height: 60px;
+  top: -20px;
+  right: 30px;
+}
+.vk-agri-bg .vk-cloud-1 {
+  top: 12%;
+  animation-duration: 45s;
+}
+.vk-agri-bg .vk-cloud-2 {
+  top: 22%;
+  transform: scale(0.7);
+  animation-duration: 60s;
+  animation-delay: -20s;
+  opacity: 0.8;
+}
+.vk-agri-bg .vk-cloud-3 {
+  top: 6%;
+  transform: scale(0.55);
+  animation-duration: 70s;
+  animation-delay: -45s;
+  opacity: 0.6;
+}
+
+.vk-agri-bg .vk-hills {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 38%;
+  animation: vk-hill-rise 8s ease-in-out infinite;
+}
+.vk-agri-bg .vk-hill {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.vk-agri-bg .vk-hill-back {
+  left: -10%;
+  right: -10%;
+  height: 70%;
+  background: oklch(0.72 0.12 145 / 0.55);
+}
+.vk-agri-bg .vk-hill-mid {
+  left: -20%;
+  right: 30%;
+  height: 55%;
+  background: oklch(0.62 0.14 150 / 0.7);
+}
+.vk-agri-bg .vk-hill-front {
+  left: 25%;
+  right: -15%;
+  height: 50%;
+  background: oklch(0.52 0.15 152 / 0.85);
+}
+
+.vk-agri-bg .vk-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14%;
+  background: linear-gradient(to bottom, oklch(0.46 0.13 100) 0%, oklch(0.36 0.1 80) 100%);
+}
+
+.vk-agri-bg .vk-plants {
+  position: absolute;
+  bottom: 6%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 5%;
+}
+.vk-agri-bg .vk-plant {
+  width: 14px;
+  height: 60px;
+  position: relative;
+  transform-origin: bottom center;
+  animation:
+    vk-sway 4s ease-in-out infinite,
+    vk-grow 1.2s ease-out backwards;
+}
+.vk-agri-bg .vk-plant::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  height: 100%;
+  background: oklch(0.55 0.16 145);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+.vk-agri-bg .vk-plant::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 18px;
+  height: 22px;
+  background: oklch(0.62 0.18 145);
+  transform: translateX(-50%);
+  border-radius: 50% 0 50% 50%;
+  rotate: 45deg;
+}
+.vk-agri-bg .vk-plant:nth-child(2n) {
+  height: 75px;
+  animation-delay: -1s, 0.2s;
+}
+.vk-agri-bg .vk-plant:nth-child(3n) {
+  height: 50px;
+  animation-delay: -2s, 0.4s;
+}
+.vk-agri-bg .vk-plant:nth-child(5n) {
+  height: 80px;
+  animation-delay: -0.5s, 0.6s;
+}
+
+.vk-agri-bg .vk-rain {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 14px;
+  background: oklch(0.65 0.1 230 / 0.6);
+  border-radius: 2px;
+  animation: vk-rain 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vk-agri-bg .vk-sun,
+  .vk-agri-bg .vk-cloud,
+  .vk-agri-bg .vk-plant,
+  .vk-agri-bg .vk-rain,
+  .vk-agri-bg .vk-hills {
+    animation: none !important;
+  }
+}

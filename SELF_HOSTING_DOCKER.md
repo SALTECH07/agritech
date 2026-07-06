@@ -11,8 +11,17 @@ the backend container and PostgreSQL is private inside Docker.
 
 ## 1. Prepare environment
 
+Development:
+
 ```bash
-cp .env.docker.example .env.docker
+cp .env.development.example .env.docker
+nano .env.docker
+```
+
+Production:
+
+```bash
+cp .env.production.example .env.docker
 nano .env.docker
 ```
 
@@ -23,6 +32,8 @@ POSTGRES_PASSWORD=...
 JWT_SECRET=...
 GEMINI_API_KEY=...
 ```
+
+For the full variable list and security notes, see `ENVIRONMENT_VARIABLES.md`.
 
 ## 2. Start all services
 

@@ -5,6 +5,7 @@ commands, and finance analysis. Deploy it as a Cloudflare Worker with assets;
 do not upload only the static files, because the API routes will not work.
 
 For Ubuntu/Debian server setup, see `LINUX_SERVER_INSTALLATION.md`.
+For development/production environment templates, see `ENVIRONMENT_VARIABLES.md`.
 
 ## Production build
 

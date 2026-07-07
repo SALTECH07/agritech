@@ -2,9 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Leaf, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useT } from "@/lib/i18n";
+import { flaskLogin, flaskRegister, getCurrentFlaskUser } from "@/lib/flask-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,8 +30,8 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+    getCurrentFlaskUser().then((user) => {
+      if (user) navigate({ to: "/dashboard", replace: true });
     });
   }, [navigate]);
 
@@ -41,50 +40,18 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "in") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        await flaskLogin(email, password);
         navigate({ to: "/dashboard", replace: true });
       } else if (mode === "up") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin + "/dashboard",
-            data: { full_name: fullName },
-          },
-        });
-        if (error) throw error;
+        await flaskRegister(email, password, fullName);
         toast.success("Akaunti imeundwa!");
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-        if (signInError) throw signInError;
         navigate({ to: "/dashboard", replace: true });
       } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/reset-password",
-        });
-        if (error) throw error;
-        toast.success("Tumekutumia link ya kubadili nywila kwenye email yako.");
+        toast.error("Password reset is not available for Flask login yet.");
         setMode("in");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("error_generic"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const google = async () => {
-    setLoading(true);
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) {
-        toast.error(result.error.message || t("error_generic"));
-        return;
-      }
-      if (result.redirected) return;
-      navigate({ to: "/dashboard", replace: true });
     } finally {
       setLoading(false);
     }
@@ -117,21 +84,7 @@ function AuthPage() {
               : t("tagline")}
           </p>
 
-          {mode !== "forgot" && (
-            <>
-              <Button variant="outline" className="mt-6 w-full" onClick={google} disabled={loading}>
-                {t("continue_with_google")}
-              </Button>
-
-              <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-                <div className="h-px flex-1 bg-border" />
-                {t("or")}
-                <div className="h-px flex-1 bg-border" />
-              </div>
-            </>
-          )}
-
-          <form onSubmit={submit} className="space-y-3">
+          <form onSubmit={submit} className="mt-6 space-y-3">
             {mode === "up" && (
               <div>
                 <Label htmlFor="name">{t("full_name")}</Label>

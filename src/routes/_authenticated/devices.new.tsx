@@ -30,15 +30,14 @@ import { z } from "zod";
 import { claimDevice, createManualDevice } from "@/lib/devices.functions";
 import { CROP_PRESETS, findCropPreset, getCropMoisturePlan } from "@/lib/crop-presets";
 import { useT, type DictKey, type Lang } from "@/lib/i18n";
+import { getFlaskToken } from "@/lib/flask-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({ code: z.string().optional() });
 const PUBLIC_OPERATION_BASE_URL = "https://farming-guide.com";
-const SESSION_REFRESH_WINDOW_MS = 2 * 60 * 1000;
 
 export const Route = createFileRoute("/_authenticated/devices/new")({
   head: () => ({ meta: [{ title: "Ongeza Kifaa - Veta Kipawa" }] }),
@@ -207,23 +206,8 @@ function signInAgainMessage(lang: Lang) {
     : "Your sign-in session expired. Please sign in again, then add the device.";
 }
 
-function shouldRefreshSession(expiresAt?: number | null) {
-  if (!expiresAt) return false;
-  return expiresAt * 1000 - Date.now() <= SESSION_REFRESH_WINDOW_MS;
-}
-
-async function requireFreshBrowserSession(lang: Lang) {
-  const { data, error } = await supabase.auth.getSession();
-  if (error || !data.session?.access_token) {
-    throw new Error(signInAgainMessage(lang));
-  }
-
-  if (shouldRefreshSession(data.session.expires_at)) {
-    const refreshed = await supabase.auth.refreshSession();
-    if (refreshed.error || !refreshed.data.session?.access_token) {
-      throw new Error(signInAgainMessage(lang));
-    }
-  }
+function requireFreshBrowserSession(lang: Lang) {
+  if (!getFlaskToken()) throw new Error(signInAgainMessage(lang));
 }
 
 function NewDevicePage() {

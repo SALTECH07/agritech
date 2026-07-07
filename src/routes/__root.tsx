@@ -12,7 +12,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LangProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme-provider";
-import { supabase } from "@/integrations/supabase/client";
+import { onFlaskAuthChange } from "@/lib/flask-auth";
 import { Toaster } from "@/components/ui/sonner";
 
 const SITE_URL = "https://farming-guide.com";
@@ -110,12 +110,10 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+    return onFlaskAuthChange(() => {
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      queryClient.invalidateQueries();
     });
-    return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
 
   return (

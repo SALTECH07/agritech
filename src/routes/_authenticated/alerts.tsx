@@ -2,12 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, CheckCheck } from "lucide-react";
-import { useEffect } from "react";
-import { toast } from "sonner";
 import { listMyAlerts, markAlertRead } from "@/lib/devices.functions";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
   head: () => ({ meta: [{ title: "Arifa — Veta Kipawa" }] }),
@@ -28,36 +25,6 @@ function AlertsPage() {
     mutationFn: (id: number) => mFn({ data: { id } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["alerts"] }),
   });
-
-  useEffect(() => {
-    let userId: string | null = null;
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-    (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      userId = u.user?.id ?? null;
-      if (!userId) return;
-      channel = supabase
-        .channel(`alerts:${userId}`)
-        .on(
-          "postgres_changes",
-          { event: "INSERT", schema: "public", table: "alerts", filter: `user_id=eq.${userId}` },
-          (payload) => {
-            const row = payload.new as { title?: string; body?: string; level?: string };
-            qc.invalidateQueries({ queryKey: ["alerts"] });
-            if (row?.title) {
-              toast(row.title, {
-                description: row.body,
-                duration: 6000,
-              });
-            }
-          },
-        )
-        .subscribe();
-    })();
-    return () => {
-      if (channel) supabase.removeChannel(channel);
-    };
-  }, [qc]);
 
   return (
     <div className="space-y-4">

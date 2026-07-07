@@ -12,7 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { flaskLogout } from "@/lib/flask-auth";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { LangToggle } from "./lang-toggle";
@@ -46,7 +46,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    flaskLogout();
     navigate({ to: "/auth", replace: true });
   };
 

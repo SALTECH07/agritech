@@ -11,12 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { askFarmAssistant, getMyDeviceContext } from "@/lib/chat.functions";
 import { listMyDevices } from "@/lib/devices.functions";
 import { getAIConnectionStatus } from "@/lib/ai.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { getCurrentFlaskUser } from "@/lib/flask-auth";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
 const STORAGE_KEY = "vk_chat_v1";
-const SESSION_REFRESH_WINDOW_MS = 2 * 60 * 1000;
 
 export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({ meta: [{ title: "Msaidizi wa Kilimo — Veta Kipawa Agri Tech" }] }),
@@ -49,32 +48,6 @@ function loadMessages(): Msg[] {
   }
 }
 
-function shouldRefreshSession(expiresAt?: number | null) {
-  if (!expiresAt) return false;
-  return expiresAt * 1000 - Date.now() <= SESSION_REFRESH_WINDOW_MS;
-}
-
-async function getFreshChatSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error || !data.session?.access_token) return null;
-
-  let session = data.session;
-
-  if (shouldRefreshSession(data.session.expires_at)) {
-    const refreshed = await supabase.auth.refreshSession();
-    if (refreshed.data.session?.access_token) session = refreshed.data.session;
-  }
-
-  const user = await supabase.auth.getUser(session.access_token);
-  if (!user.error && user.data?.user) return session;
-
-  const refreshed = await supabase.auth.refreshSession();
-  if (!refreshed.data.session?.access_token) return null;
-
-  const refreshedUser = await supabase.auth.getUser(refreshed.data.session.access_token);
-  return refreshedUser.error || !refreshedUser.data?.user ? null : refreshed.data.session;
-}
-
 function ChatPage() {
   const { t, lang } = useT();
   const fetchCtx = useServerFn(getMyDeviceContext);
@@ -84,12 +57,12 @@ function ChatPage() {
 
   const sessionQuery = useQuery({
     queryKey: ["chat-session"],
-    queryFn: getFreshChatSession,
+    queryFn: getCurrentFlaskUser,
     retry: false,
     staleTime: 30_000,
   });
 
-  const canChat = Boolean(sessionQuery.data?.access_token);
+  const canChat = Boolean(sessionQuery.data);
   const authChecking = sessionQuery.isLoading || sessionQuery.isFetching;
   const needsSignIn = !authChecking && !canChat;
 
@@ -156,8 +129,8 @@ function ChatPage() {
       return;
     }
 
-    const session = await getFreshChatSession();
-    if (!session?.access_token) {
+    const user = await getCurrentFlaskUser();
+    if (!user) {
       await sessionQuery.refetch();
       toast.error(
         lang === "sw"

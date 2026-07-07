@@ -7,7 +7,7 @@ import { getMyProfile, updateMyProfile } from "@/lib/devices.functions";
 import { getAIConnectionStatus } from "@/lib/ai.functions";
 import { useT, type DictKey } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-provider";
-import { supabase } from "@/integrations/supabase/client";
+import { getCurrentFlaskUser } from "@/lib/flask-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +44,7 @@ function SettingsPage() {
   const aiStatus = aiStatusQuery.data;
   const { data: authUser } = useQuery({
     queryKey: ["auth-user"],
-    queryFn: async () => (await supabase.auth.getUser()).data.user,
+    queryFn: getCurrentFlaskUser,
   });
   const [full, setFull] = useState("");
   const [phone, setPhone] = useState("");
@@ -87,27 +87,8 @@ function SettingsPage() {
       toast.error("Picha isizidi 5MB");
       return;
     }
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${authUser.id}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("avatars")
-        .upload(path, file, { upsert: true, contentType: file.type });
-      if (upErr) throw upErr;
-      const { data: signed, error: sErr } = await supabase.storage
-        .from("avatars")
-        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-      if (sErr || !signed) throw sErr ?? new Error("Signed URL failed");
-      await upFn({ data: { avatar_url: signed.signedUrl } });
-      setAvatarUrl(signed.signedUrl);
-      toast.success("Picha ya wasifu imesasishwa");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("error_generic"));
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
+    toast.error("Avatar upload needs Flask file storage before it can be used.");
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   const save = useMutation({
@@ -165,7 +146,7 @@ function SettingsPage() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-lg font-semibold">
-              {full || authUser?.user_metadata?.full_name || "—"}
+              {full || authUser?.full_name || "—"}
             </div>
             <div className="truncate text-sm text-muted-foreground">{authUser?.email ?? "—"}</div>
             <button

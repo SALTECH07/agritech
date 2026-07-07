@@ -89,9 +89,32 @@ def config_for_device(device: Device) -> dict:
 def public_device_required():
     device = device_from_key()
     if not device:
-        return None, (jsonify({"error": "invalid_device_key"}), 401)
+        return None, (
+            jsonify(
+                {
+                    "error": "invalid_device_key",
+                    "path": request.path,
+                    "accepted_auth": [
+                        "Authorization: Bearer <device_key>",
+                        "X-Device-Key: <device_key>",
+                        "X-API-Key: <device_key>",
+                        "?device_key=<device_key>",
+                    ],
+                }
+            ),
+            401,
+        )
     mark_device_online(device)
     return device, None
+
+
+def latest_reading_for(device: Device):
+    return db.session.scalar(
+        select(Reading)
+        .where(Reading.device_id == device.id)
+        .order_by(Reading.recorded_at.desc())
+        .limit(1)
+    )
 
 
 @api.get("/health")
@@ -321,9 +344,29 @@ def public_ingest():
     if error:
         return error
     body = json_body()
+    if request.data and not body:
+        db.session.rollback()
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "error": "invalid_json",
+                    "path": request.path,
+                    "content_type": request.content_type,
+                }
+            ),
+            400,
+        )
     if body.get("ping") is True or body.get("heartbeat") is True:
         db.session.commit()
-        return jsonify({"ok": True, "heartbeat": True, "claimed": device.is_claimed, "config": config_for_device(device)})
+        return jsonify(
+            {
+                "ok": True,
+                "heartbeat": True,
+                "claimed": device.is_claimed,
+                "config": config_for_device(device),
+            }
+        )
     parsed = parse_reading(body)
     if not any(value is not None for value in parsed.values()):
         db.session.rollback()
@@ -344,6 +387,7 @@ def public_ingest():
 
 
 @api.get("/public/devices/config")
+@api.get("/devices/config")
 def public_config():
     device, error = public_device_required()
     if error:
@@ -353,6 +397,7 @@ def public_config():
 
 
 @api.get("/public/devices/commands")
+@api.get("/devices/commands")
 def public_commands():
     device, error = public_device_required()
     if error:
@@ -370,6 +415,7 @@ def public_commands():
 
 
 @api.get("/public/commands/next")
+@api.get("/commands/next")
 def public_next_command():
     device, error = public_device_required()
     if error:
@@ -397,6 +443,7 @@ def public_next_command():
 
 
 @api.post("/public/devices/ack")
+@api.post("/devices/ack")
 def public_ack():
     device, error = public_device_required()
     if error:
@@ -409,7 +456,9 @@ def public_ack():
         cid = UUID(str(command_id))
     except ValueError:
         return jsonify({"error": "invalid_id"}), 400
-    command = db.session.scalar(select(Command).where(Command.id == cid, Command.device_id == device.id))
+    command = db.session.scalar(
+        select(Command).where(Command.id == cid, Command.device_id == device.id)
+    )
     if not command:
         return jsonify({"error": "command_not_found"}), 404
     ok = body.get("ok") is not False
@@ -429,6 +478,76 @@ def public_ack():
         )
     db.session.commit()
     return jsonify({"ok": True})
+
+
+@api.get("/public/irrigation/decision")
+@api.get("/irrigation/decision")
+def public_irrigation_decision():
+    device, error = public_device_required()
+    if error:
+        return error
+
+    latest = latest_reading_for(device)
+    moisture = latest.soil_moisture if latest else None
+    pump_off = float(device.pump_off_threshold or 55)
+    allow_irrigation = moisture is None or moisture < pump_off
+    reason = (
+        "Hakuna mvua iliyozuiwa kwenye Flask backend; ruhusu kifaa kitumie thresholds zake."
+        if allow_irrigation
+        else f"Unyevu wa udongo uko {moisture:.0f}%, umefikia kiwango cha kuzima pampu."
+    )
+
+    db.session.commit()
+    return jsonify(
+        {
+            "allow_irrigation": allow_irrigation,
+            "forecast": {
+                "rain_probability_percent": 0,
+                "rain_amount_mm": 0,
+            },
+            "reason": reason,
+            "source": "flask",
+            "latest_reading_at": latest.recorded_at.isoformat() if latest else None,
+        }
+    )
+
+
+@api.get("/public/advice/latest")
+@api.get("/advice/latest")
+def public_latest_advice():
+    device, error = public_device_required()
+    if error:
+        return error
+
+    latest = latest_reading_for(device)
+    if not latest or latest.soil_moisture is None:
+        advice_text = "Hakuna ushauri bado. Subiri kifaa kitume vipimo vya unyevu."
+        action = "wait"
+    elif latest.soil_moisture < float(device.pump_on_threshold or 30):
+        advice_text = (
+            f"Udongo umekauka ({latest.soil_moisture:.0f}%). "
+            f"Washa umwagiliaji mpaka ufike {float(device.pump_off_threshold or 55):.0f}%."
+        )
+        action = "pump_on"
+    elif latest.soil_moisture >= float(device.pump_off_threshold or 55):
+        advice_text = (
+            f"Unyevu umetosha ({latest.soil_moisture:.0f}%). "
+            "Zima pampu au acha ikiwa imezimwa."
+        )
+        action = "pump_off"
+    else:
+        advice_text = f"Unyevu uko sawa ({latest.soil_moisture:.0f}%). Endelea kufuatilia."
+        action = "hold"
+
+    db.session.commit()
+    return jsonify(
+        {
+            "advice_text": advice_text,
+            "action": action,
+            "created_at": latest.recorded_at.isoformat() if latest else None,
+            "source": "flask_rules",
+        }
+    )
 
 
 @api.get("/finance")
